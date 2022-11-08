@@ -1,1 +1,1 @@
-# chain-reaction-ai
+# nim-ai
