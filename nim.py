@@ -1,5 +1,6 @@
 import numpy as np
 import maxn
+import paranoid
 import os
 
 def print_rows():
@@ -15,12 +16,13 @@ def get_human_inputs():
     return row,num
 
 def get_ai_inputs():
-    row,num = maxn.maxn(rows, turn,p)
+    row,num = paranoid.paranoid(rows, turn,p)
     return row,num
 
 def print_utility():
     res = maxn.heuristic1(rows,turn,p)
-    print(f"The current utility is {res[0]}")
+    resp = paranoid.heuristic(rows,turn,turn,p)
+    print(f"The current utility is {res[0]}, {resp}")
 
 print("PLAY A MULTIPLAYER NIM GAME\n")
 print("NOTE- The player to remove the last stick wins")
