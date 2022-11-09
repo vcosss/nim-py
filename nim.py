@@ -15,28 +15,29 @@ def get_human_inputs():
     return row,num
 
 def get_ai_inputs():
-    res,row,num = maxn.max_val(rows, turn,p)
-    return res,row,num
+    row,num = maxn.maxn(rows, turn,p)
+    return row,num
 
+def print_utility():
+    res = maxn.heuristic1(rows,turn,p)
+    print(f"The current utility is {res[0]}")
 
 print("PLAY A MULTIPLAYER NIM GAME\n")
 print("NOTE- The player to remove the last stick wins")
 p = int(input("Enter number of human players: "))  # number of players
-# r = int(input("Enter number of rows: "))  # number of rows
-# rows = np.random.choice(range(3, 15), size=(r))
-rows = np.array([6,7,8])
-r = 3
+r = int(input("Enter number of rows: "))  # number of rows
+rows = np.random.choice(range(3, 15), size=(r))
 
 turn = 0
 p+=1
 while True:
 
     print_rows()
+    print_utility()
     if turn == p - 1:
         print("AI's turn:")
-        res,row,num = get_ai_inputs()
+        row,num = get_ai_inputs()
         print(f"AI chooses to remove {num} sticks from row {row}")
-        print(f"The current utility is {res}")
         input("Press enter to continue...")
     else:
         print(f"PLAYER {turn + 1}'S TURN:", sep="")
@@ -50,7 +51,7 @@ while True:
     else:
         print("\nINVALID ROW. Please enter valid row\n")
         continue
-
+        
     if np.sum(rows) == 0:
         print_rows()
         res_string = "AI" if turn==p-1 else f"PLAYER {turn+1}"

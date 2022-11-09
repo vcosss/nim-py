@@ -9,15 +9,16 @@ def utility(turn,p):
 
 def heuristic1(rows,turn,p):
     """returns heuristic value for a given state"""
+    
     maxv = np.sum(rows)
     minv = np.count_nonzero(rows)
     ut = np.zeros(p)
-    for j in range(len(ut)):
-        for i in range(minv,maxv+1):
-            if i%(j+1)==0:
-                ut[j]+=1
-            # print(i,j,ut)
-            
+    
+    for j in range(p):
+        for i in range(minv, maxv+1):
+            if j == ((i+turn-1)%p):
+                ut[j] += 1
+        
     # print(ut/np.sum(ut))
     return ut/np.sum(ut),-1,-1
 
