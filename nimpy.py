@@ -173,7 +173,7 @@ class Paranoid(Engine):
 
 class Dum(Engine):
     
-    def __init__(self, num_players=None, p_num=None, max_depth=None):
+    def __init__(self, num_players, p_num, max_depth=None):
         super().__init__(num_players, p_num, max_depth)
 
     def choose(self,rows):
@@ -185,41 +185,11 @@ class Dum(Engine):
 
 class Human:
         
+    def __init__(self, num_players, p_num, max_depth=None):
+        super().__init__(num_players, p_num, max_depth)
+    
     def choose(self,rows):
         '''returns best move for a given state'''
         row = int(input("Enter row number: "))
         sticks = int(input("Enter number of sticks: "))
         return (row, sticks)
-
-def print_rows(rows):
-    # os.system("cls")
-    print("")
-    for i in range(len(rows)):
-        print(chr(11007) * rows[i], " (", rows[i], ")", sep="")
-    print("")
-
-def play_game(engine1, engine2, engine3, rows, verbose=False):
-    turn = 0
-    while True:
-        if turn == 0:
-            row, sticks = engine1.choose(rows)
-        elif turn ==1:
-            row, sticks = engine2.choose(rows)
-        else:
-            row, sticks = engine3.choose(rows)
-        if verbose:
-            print_rows(rows)
-            print("Player {} chose row {} and {} sticks".format(turn+1, row, sticks))
-        rows[row-1] -= sticks
-
-        if np.sum(rows) == 0:
-            if verbose:
-                print(f"Player {turn+1} wins!")
-                return turn
-        turn = (turn+1)%3
-
-swara = Dum()
-icebear = Paranoid(3,1,pruning=True,max_depth=5)
-vcos = Maxn(3,2,max_depth=3)
-rows = np.random.choice(range(3, 15), size=(3))
-play_game(swara,icebear,vcos,verbose=True,rows=rows)
