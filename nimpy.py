@@ -87,7 +87,7 @@ class Maxn(Engine):
 
 class Paranoid(Engine):
 
-    def __init__(self, num_players, p_num, max_depth=None, pruning=None):
+    def __init__(self, num_players, p_num, max_depth=None, pruning=True):
         super().__init__(num_players, p_num, max_depth)
         self.pruning = pruning
 
@@ -285,14 +285,42 @@ class Offensive(Engine):
                     c_eq+=1
 
         return max_arr/c_eq,best_row,best_sticks
-class Mixed(Engine):
+
+class MPmix(Engine):
     
-    def __init__(self, num_players, p_num, max_depth=None):
+    def __init__(self, num_players, p_num, thresh_def, thresh_off, max_depth=None):
         super().__init__(num_players, p_num, max_depth)
-    
+        self.maxn = Maxn(num_players, p_num, max_depth)
+        self.para = Paranoid(num_players, p_num, max_depth)
+        self.off = Offensive(num_players, p_num, max_depth)
+        self.thresh_def = thresh_def
+        self.thresh_off = thresh_off
+
+    def heuristic(self,rows,turn):
+        '''returns heuristic value for a given state'''
+        
+        maxv = np.sum(rows)
+        minv = np.count_nonzero(rows)
+        heur = np.zeros(self.num_players)
+        
+        for j in range(self.num_players):
+            for i in range(minv, maxv+1):
+                if j == ((i+turn-1)%self.num_players):
+                    heur[j] += 1
+            
+        return heur/np.sum(heur)
+
     def choose(self,rows):
         '''returns best move for a given state'''
-        if np.sum(rows)%2==0:
-            return Dum.choose(self,rows)
+        heur = self.heuristic(rows,self.p_num)
+        heur.sort(descending=True)
+        leading_edge = heur[0] - heur[1]
+        leader = np.argmax(heur)
+        if (leader == self.p_num):
+            if (leading_edge > self.thresh_def):
+                return self.para.choose(rows)
         else:
-            return Paranoid.choose(self,rows)
+            if (leading_edge > self.thresh_off):
+                return self.off.choose(rows,leader)
+        return self.maxn.choose(rows)
+        
