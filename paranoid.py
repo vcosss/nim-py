@@ -23,10 +23,10 @@ def heuristic(rows,turn,root_turn,p):
   return ((maxv-(minv+jump))//p)/(maxv-minv+1)
 
 def paranoid(rows,turn,p):
-  res, best_row, best_sticks = max_val(rows,p,turn,turn)
+  res, best_row, best_sticks = max_val(rows,p,turn,turn,-1000, 1000)
   return (best_row,best_sticks)
 
-def max_val(rows,p,turn,root_turn,max_depth=7,depth=0):
+def max_val(rows,p,turn,root_turn,alpha, beta,max_depth=5,depth=0):
   if is_leaf(rows) or depth>=max_depth:
     # print("leafff")
     return heuristic(rows,turn,root_turn,p), -1, -1
@@ -35,15 +35,18 @@ def max_val(rows,p,turn,root_turn,max_depth=7,depth=0):
   best_row,best_sticks = 1,1
   for i in range(len(rows)):
     for j in range(1, rows[i] + 1):
-      res_temp,bla1,bla2 = min_val(rows,p,(turn + 1) % p,root_turn,max_depth,depth+1)
+      res_temp,bla1,bla2 = min_val(rows,p,(turn + 1) % p,root_turn,alpha, beta, max_depth,depth+1)
       if res_val < res_temp:
         res_val = res_temp
         best_row = i+1
         best_sticks = j
+      if res_val >= beta:
+        return res_val,best_row,best_sticks
+      alpha = max(alpha, res_val)
   return res_val,best_row,best_sticks
 
 
-def min_val(rows,p,turn,root_turn,max_depth=5,depth=0):
+def min_val(rows,p,turn,root_turn,alpha, beta, max_depth=5,depth=0):
   if is_leaf(rows) or depth>=max_depth:
     # print("leafff")
     return heuristic(rows,turn,root_turn,p), -1, -1
@@ -53,12 +56,15 @@ def min_val(rows,p,turn,root_turn,max_depth=5,depth=0):
   for i in range(len(rows)):
     for j in range(1, rows[i] + 1):
       if turn==root_turn:
-        res_temp,bla1,bla2 = max_val(rows,p,(turn + 1) % p,root_turn,max_depth,depth+1)
+        res_temp,bla1,bla2 = max_val(rows,p,(turn + 1) % p,root_turn,alpha, beta, max_depth,depth+1)
       else:  
-        res_temp,bla1,bla2 = min_val(rows,p,(turn + 1) % p,root_turn,max_depth,depth+1)
+        res_temp,bla1,bla2 = min_val(rows,p,(turn + 1) % p,root_turn,alpha, beta, max_depth,depth+1)
       if res_val > res_temp:
         res_val = res_temp
         best_row = i+1
         best_sticks = j
+      if res_val <= alpha:
+        return res_val,best_row,best_sticks
+      beta = min(beta, res_val)
   return res_val,best_row,best_sticks
         
