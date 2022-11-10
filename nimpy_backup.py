@@ -155,7 +155,7 @@ class Paranoid(Engine):
                 new_rows = rows.copy()
                 new_rows[row] -= sticks
 
-                if ((turn+1)%self.num_players==self.p_num):
+                if (turn==self.p_num):
                     curr,_,_ = self.max_val(new_rows,(turn+1)%self.num_players,alpha,beta,depth+1)
                 else:
                     curr,_,_ = self.min_val(new_rows,(turn+1)%self.num_players,alpha,beta,depth+1)
@@ -242,9 +242,7 @@ class Offensive(Engine):
             for sticks in range(1, rows[row] + 1):
                 new_rows = rows.copy()
                 new_rows[row] -= sticks
-                
                 arr,_,_ = self.max_val(new_rows,(turn+1)%self.num_players,depth+1)
-                
                 if arr[self.target_num] < curr:
                     curr = arr[self.target_num]
                     min_arr = arr
@@ -272,7 +270,7 @@ class Offensive(Engine):
             for sticks in range(1, rows[row] + 1):
                 new_rows = rows.copy()
                 new_rows[row] -= sticks
-                if ((turn+1)%self.num_players==self.p_num):
+                if (turn==self.p_num):
                     arr,_,_ = self.min_val(new_rows,(turn+1)%self.num_players,depth+1)
                 else:
                     arr,_,_ = self.max_val(new_rows,(turn+1)%self.num_players,depth+1)
