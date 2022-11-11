@@ -2,11 +2,13 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5):
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5, grow_depth=0):
         self.num_players = num_players
         self.p_num = p_num
-        self.max_depth = max_depth
+        self.max_depth = 3 if grow_depth else max_depth
         self.heuristic_type = heuristic_type
+        self.grow_depth = grow_depth
+        self.depth_values = {20:5, 10:7}
 
     def utility(self, rows):
         pass
@@ -30,8 +32,8 @@ class Engine:
 
 class Maxn(Engine):
 
-    def __init__(self, num_players, p_num,heuristic_type, max_depth=5):
-        super().__init__(num_players, p_num,heuristic_type, max_depth)
+    def __init__(self, num_players, p_num,heuristic_type=1, max_depth=5, grow_depth=0):
+        super().__init__(num_players, p_num,heuristic_type, max_depth, grow_depth)
 
     def utility(self,turn):
         '''returns utility array for leaf node'''
@@ -59,6 +61,12 @@ class Maxn(Engine):
     
     def max_val(self,rows,turn,depth=0):
         '''returns best move for a given state'''
+        if self.grow_depth:
+            for k in self.depth_values.keys():
+                if np.sum(rows) <= k:
+                    self.max_depth = self.depth_values[k]
+                    break                
+            
         if self.is_leaf(rows):
             return self.utility(turn),-1,-1
             
@@ -88,8 +96,8 @@ class Maxn(Engine):
 
 class Paranoid(Engine):
 
-    def __init__(self, num_players, p_num,heuristic_type, max_depth=5, pruning=True):
-        super().__init__(num_players, p_num, heuristic_type,max_depth)
+    def __init__(self, num_players, p_num,heuristic_type=1, max_depth=5, pruning=True, grow_depth=0):
+        super().__init__(num_players, p_num, heuristic_type,max_depth, grow_depth)
         self.pruning = pruning
 
     def utility(self,turn):
@@ -113,6 +121,12 @@ class Paranoid(Engine):
 
     def max_val(self,rows,turn,alpha,beta,depth=0):
         '''returns best move for a given state'''
+        if self.grow_depth:
+            for k in self.depth_values.keys():
+                if np.sum(rows) <= k:
+                    self.max_depth = self.depth_values[k]
+                    break   
+        
         if self.is_leaf(rows):
             return self.utility(turn),-1,-1
             
@@ -140,6 +154,12 @@ class Paranoid(Engine):
 
     def min_val(self,rows,turn,alpha,beta,depth=0):
         '''returns best move for a given state'''
+        if self.grow_depth:
+            for k in self.depth_values.keys():
+                if np.sum(rows) <= k:
+                    self.max_depth = self.depth_values[k]
+                    break   
+        
         if self.is_leaf(rows):
             return self.utility(turn),-1,-1
             
@@ -171,8 +191,8 @@ class Paranoid(Engine):
 
 class Dum(Engine):
     
-    def __init__(self, num_players, p_num, heuristic_type= None, max_depth=3):
-        super().__init__(num_players, p_num, heuristic_type, max_depth)
+    def __init__(self, num_players, p_num, heuristic_type= None, max_depth=3, grow_depth=0):
+        super().__init__(num_players, p_num, heuristic_type, max_depth, grow_depth)
 
     def choose(self,rows):
         '''returns best move for a given state'''
@@ -183,8 +203,8 @@ class Dum(Engine):
 
 class Human(Engine):
         
-    def __init__(self, num_players, p_num, heuristic_type = None, max_depth=3):
-        super().__init__(num_players, p_num, heuristic_type,max_depth)
+    def __init__(self, num_players, p_num, heuristic_type = None, max_depth=3, grow_depth=0):
+        super().__init__(num_players, p_num, heuristic_type,max_depth, grow_depth)
     
     def choose(self,rows):
         '''returns best move for a given state'''
@@ -195,8 +215,8 @@ class Human(Engine):
 
 class Offensive(Engine):
     
-    def __init__(self, num_players, p_num, heuristic_type, max_depth=3):
-        super().__init__(num_players, p_num,heuristic_type,  max_depth)
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=0):
+        super().__init__(num_players, p_num,heuristic_type,  max_depth, grow_depth)
 
     def utility(self,turn):
         '''returns utility array for leaf node'''
@@ -225,6 +245,12 @@ class Offensive(Engine):
     
     def min_val(self,rows,turn,depth=0):
         '''returns best move for a given state'''
+        if self.grow_depth:
+            for k in self.depth_values.keys():
+                if np.sum(rows) <= k:
+                    self.max_depth = self.depth_values[k]
+                    break   
+        
         if self.is_leaf(rows):
             return self.utility(turn),-1,-1
             
@@ -255,6 +281,12 @@ class Offensive(Engine):
     
     def max_val(self,rows,turn,depth=0):
         '''returns best move for a given state'''
+        if self.grow_depth:
+            for k in self.depth_values.keys():
+                if np.sum(rows) <= k:
+                    self.max_depth = self.depth_values[k]
+                    break   
+        
         if self.is_leaf(rows):
             return self.utility(turn),-1,-1
             
@@ -286,8 +318,8 @@ class Offensive(Engine):
 
 class MPmix(Engine):
     
-    def __init__(self, num_players, p_num, thresh_def, thresh_off, max_depth=3):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=0, thresh_def=0.3, thresh_off=0.3):
+        super().__init__(num_players, p_num,heuristic_type,  max_depth, grow_depth)
         self.maxn = Maxn(num_players, p_num, max_depth)
         self.para = Paranoid(num_players, p_num, max_depth)
         self.off = Offensive(num_players, p_num, max_depth)
