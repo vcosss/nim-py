@@ -2,13 +2,13 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5, grow_depth=0):
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5, grow_depth=1):
         self.num_players = num_players
         self.p_num = p_num
         self.max_depth = 3 if grow_depth else max_depth
         self.heuristic_type = heuristic_type
         self.grow_depth = grow_depth
-        self.depth_values = {20:5, 10:7}
+        self.depth_values = {15:5, 10:7}
 
     def utility(self, rows):
         pass
@@ -96,7 +96,7 @@ class Maxn(Engine):
 
 class Paranoid(Engine):
 
-    def __init__(self, num_players, p_num,heuristic_type=1, max_depth=5, pruning=True, grow_depth=0):
+    def __init__(self, num_players, p_num,heuristic_type=1, max_depth=5, pruning=True, grow_depth=1):
         super().__init__(num_players, p_num, heuristic_type,max_depth, grow_depth)
         self.pruning = pruning
 
@@ -215,7 +215,7 @@ class Human(Engine):
 
 class Offensive(Engine):
     
-    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=0):
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=1):
         super().__init__(num_players, p_num,heuristic_type,  max_depth, grow_depth)
 
     def utility(self,turn):
@@ -318,7 +318,7 @@ class Offensive(Engine):
 
 class MPmix(Engine):
     
-    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=0, thresh_def=0.3, thresh_off=0.3):
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=3, grow_depth=1, thresh_def=0.3, thresh_off=0.3):
         super().__init__(num_players, p_num,heuristic_type,  max_depth, grow_depth)
         self.maxn = Maxn(num_players, p_num, max_depth)
         self.para = Paranoid(num_players, p_num, max_depth)
