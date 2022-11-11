@@ -1,0 +1,31 @@
+options
+----------
+R M P X
+H1 H2
+----------
+
+M R R R (depth, 3,5,7)
+P R R R (depth, 3,5,7)
+using above depth
+
+R R R M growdepth=1
+R R R P growdepth=1
+
+X R R R (threshold, O&D : 0.2,0.3,0.4, )
+using above thresholds
+X R R R (depth, 3,5,7,growdepth)
+
+M1 R R R
+M2 R R R
+P1 R R R
+P2 R R R
+X1 R R R
+X2 R R R
+
+using best heur of above
+M M X M
+P P X P
+
+
+M1 M1 M2
+M1 M2 R
