@@ -2,10 +2,11 @@ import numpy as np
 
 class Engine:
 
-    def __init__(self, num_players, p_num, max_depth=5):
+    def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5):
         self.num_players = num_players
         self.p_num = p_num
         self.max_depth = max_depth
+        self.heuristic_type = heuristic_type
 
     def utility(self, rows):
         pass
@@ -29,8 +30,8 @@ class Engine:
 
 class Maxn(Engine):
 
-    def __init__(self, num_players, p_num, max_depth=None):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num,heuristic_type, max_depth=5):
+        super().__init__(num_players, p_num,heuristic_type, max_depth)
 
     def utility(self,turn):
         '''returns utility array for leaf node'''
@@ -48,10 +49,10 @@ class Maxn(Engine):
         for j in range(self.num_players):
             for i in range(minv, maxv+1):
                 if j == ((i+turn-1)%self.num_players):
-                    heur[j] += 1
+                    heur[j] += (1) if self.heuristic_type==1 else (-32 + np.log(i) * 36)
             
         return heur/np.sum(heur)
-
+        
     def choose(self,rows):
         _, best_row, best_sticks = self.max_val(rows,self.p_num)
         return (best_row, best_sticks)
@@ -87,28 +88,25 @@ class Maxn(Engine):
 
 class Paranoid(Engine):
 
-    def __init__(self, num_players, p_num, max_depth=None, pruning=True):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num,heuristic_type, max_depth=5, pruning=True):
+        super().__init__(num_players, p_num, heuristic_type,max_depth)
         self.pruning = pruning
 
     def utility(self,turn):
         '''returns utility array for leaf node'''
         return int(turn == (self.p_num+1)%self.num_players)
-
+    
     def heuristic(self,rows,turn):
-        '''returns heuristic value for a given state'''
         maxv = np.sum(rows)
         minv = np.count_nonzero(rows)
-            
-        a = (minv+turn-1)%self.num_players
-        b = (maxv+turn-1)% self.num_players
+        heur = 0
+
+        for i in range(minv, maxv+1):
+            if self.p_num == ((i+turn-1)%self.num_players):
+                heur += (1) if self.heuristic_type==1 else (-32 + np.log(i) * 36)
         
-        jump = self.p_num-a
-        if jump<0:
-            jump += self.num_players
-            
-        return ((maxv-(minv+jump))//self.num_players)/(maxv-minv+1)
-    
+        return (heur/(maxv-minv+1)) if self.heuristic==1 else (np.sum(-32 + np.log(np.arange(minv, maxv+1)) * 36)) 
+           
     def choose(self,rows):
         _, best_row, best_sticks = self.max_val(rows,self.p_num,-1000,1000)
         return (best_row, best_sticks)
@@ -173,8 +171,8 @@ class Paranoid(Engine):
 
 class Dum(Engine):
     
-    def __init__(self, num_players, p_num, max_depth=None):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num, heuristic_type= None, max_depth=3):
+        super().__init__(num_players, p_num, heuristic_type, max_depth)
 
     def choose(self,rows):
         '''returns best move for a given state'''
@@ -183,10 +181,10 @@ class Dum(Engine):
         return (row, sticks)
 
 
-class Human:
+class Human(Engine):
         
-    def __init__(self, num_players, p_num, max_depth=None):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num, heuristic_type = None, max_depth=3):
+        super().__init__(num_players, p_num, heuristic_type,max_depth)
     
     def choose(self,rows):
         '''returns best move for a given state'''
@@ -197,8 +195,8 @@ class Human:
 
 class Offensive(Engine):
     
-    def __init__(self, num_players, p_num, max_depth=None):
-        super().__init__(num_players, p_num, max_depth)
+    def __init__(self, num_players, p_num, heuristic_type, max_depth=3):
+        super().__init__(num_players, p_num,heuristic_type,  max_depth)
 
     def utility(self,turn):
         '''returns utility array for leaf node'''
@@ -216,7 +214,7 @@ class Offensive(Engine):
         for j in range(self.num_players):
             for i in range(minv, maxv+1):
                 if j == ((i+turn-1)%self.num_players):
-                    heur[j] += 1
+                    heur[j] += (1) if self.heuristic_type==1 else (-32 + np.log(i) * 36)
             
         return heur/np.sum(heur)
 
@@ -288,7 +286,7 @@ class Offensive(Engine):
 
 class MPmix(Engine):
     
-    def __init__(self, num_players, p_num, thresh_def, thresh_off, max_depth=None):
+    def __init__(self, num_players, p_num, thresh_def, thresh_off, max_depth=3):
         super().__init__(num_players, p_num, max_depth)
         self.maxn = Maxn(num_players, p_num, max_depth)
         self.para = Paranoid(num_players, p_num, max_depth)
@@ -306,14 +304,14 @@ class MPmix(Engine):
         for j in range(self.num_players):
             for i in range(minv, maxv+1):
                 if j == ((i+turn-1)%self.num_players):
-                    heur[j] += 1
+                    heur[j] += (1) if self.heuristic_type==1 else (-32 + np.log(i) * 36)
             
         return heur/np.sum(heur)
 
     def choose(self,rows):
         '''returns best move for a given state'''
         heur = self.heuristic(rows,self.p_num)
-        heur.sort(descending=True)
+        heur = np.sort(heur)[::-1]
         leading_edge = heur[0] - heur[1]
         leader = np.argmax(heur)
         if (leader == self.p_num):
