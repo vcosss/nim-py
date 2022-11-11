@@ -29,7 +29,6 @@ class Engine:
     def min_val(self,rows):
         pass
     
-
 class Maxn(Engine):
 
     def __init__(self, num_players, p_num,heuristic_type=1, max_depth=5, grow_depth=0):
@@ -92,7 +91,6 @@ class Maxn(Engine):
                     c_eq+=1
 
         return max_arr/c_eq,best_row,best_sticks
-
 
 class Paranoid(Engine):
 
@@ -187,31 +185,6 @@ class Paranoid(Engine):
                     beta = min(beta,minv)
 
         return minv,best_row,best_sticks
-    
-
-class Dum(Engine):
-    
-    def __init__(self, num_players, p_num, heuristic_type= None, max_depth=3, grow_depth=0):
-        super().__init__(num_players, p_num, heuristic_type, max_depth, grow_depth)
-
-    def choose(self,rows):
-        '''returns best move for a given state'''
-        row = np.random.choice(np.argwhere(rows>0).reshape(-1)) + 1
-        sticks = np.random.choice(np.arange(1,rows[row-1]+1))
-        return (row, sticks)
-
-
-class Human(Engine):
-        
-    def __init__(self, num_players, p_num, heuristic_type = None, max_depth=3, grow_depth=0):
-        super().__init__(num_players, p_num, heuristic_type,max_depth, grow_depth)
-    
-    def choose(self,rows):
-        '''returns best move for a given state'''
-        row = int(input("Enter row number: "))
-        sticks = int(input("Enter number of sticks: "))
-        return (row, sticks)
-
 
 class Offensive(Engine):
     
@@ -353,4 +326,27 @@ class MPmix(Engine):
             if (leading_edge > self.thresh_off):
                 return self.off.choose(rows,leader)
         return self.maxn.choose(rows)
+
+class Dum(Engine):
+    
+    def __init__(self, num_players, p_num, heuristic_type= None, max_depth=3, grow_depth=0):
+        super().__init__(num_players, p_num, heuristic_type, max_depth, grow_depth)
+
+    def choose(self,rows):
+        '''returns best move for a given state'''
+        row = np.random.choice(np.argwhere(rows>0).reshape(-1)) + 1
+        sticks = np.random.choice(np.arange(1,rows[row-1]+1))
+        return (row, sticks)
+
+
+class Human(Engine):
+        
+    def __init__(self, num_players, p_num, heuristic_type = None, max_depth=3, grow_depth=0):
+        super().__init__(num_players, p_num, heuristic_type,max_depth, grow_depth)
+    
+    def choose(self,rows):
+        '''returns best move for a given state'''
+        row = int(input("Enter row number: "))
+        sticks = int(input("Enter number of sticks: "))
+        return (row, sticks)
         
