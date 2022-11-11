@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Engine:
 
     def __init__(self, num_players, p_num, heuristic_type=1, max_depth=5, grow_depth=1):
